@@ -1,0 +1,217 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #030304;
+    color: #eef0f5;
+    overflow-x: hidden;
+    cursor: default;
+  }
+}
+
+.brand-gradient-text {
+  background: linear-gradient(100deg, #2dd4ff, #8b5cf6 55%, #e94ec4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #2a2a35;
+  border-radius: 10px;
+}
+
+.filter-btn.active {
+  background: #2dd4ff;
+  color: #050208;
+  border-color: #2dd4ff;
+}
+.filter-btn.active .dot {
+  background: #050208;
+}
+
+.led {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.03);
+}
+.led.free {
+  background: #2dd4ff;
+  box-shadow: 0 0 10px rgba(45, 212, 255, 0.5);
+}
+.led.budget {
+  background: #8b5cf6;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+.led.paid {
+  background: #e94ec4;
+  box-shadow: 0 0 10px rgba(233, 78, 196, 0.5);
+}
+.led.premium {
+  background: #fb5d78;
+  box-shadow: 0 0 10px rgba(251, 93, 120, 0.5);
+}
+
+.val.free {
+  color: #2dd4ff;
+}
+.val.budget {
+  color: #8b5cf6;
+}
+.val.paid {
+  color: #e94ec4;
+}
+.val.premium {
+  color: #fb5d78;
+}
+
+.hub-node {
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hub-node {
+    animation: none;
+  }
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.reveal {
+  animation: floatIn 0.7s ease both;
+}
+.d1 {
+  animation-delay: 0.03s;
+}
+.d2 {
+  animation-delay: 0.1s;
+}
+.d3 {
+  animation-delay: 0.17s;
+}
+.d4 {
+  animation-delay: 0.24s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+  }
+}
+
+.magnetic {
+  transition: transform 0.15s ease-out;
+}
+/* Add this at the end of your index.css */
+
+/* Marquee animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+/* Card reveal animation */
+@keyframes cardReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-cardReveal {
+  animation: cardReveal 0.6s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-cardReveal {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
+/* Terminal cursor */
+.term-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  background: #2dd4ff;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+  vertical-align: -2px;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Particle animation */
+@keyframes float-particle {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(40px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.particle {
+  animation: float-particle linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle {
+    animation: none;
+    opacity: 0;
+  }
+}
