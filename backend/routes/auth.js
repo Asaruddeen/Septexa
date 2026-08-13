@@ -9,33 +9,45 @@ const router = express.Router();
 
 // ===== GOOGLE OAUTH STRATEGY =====
 export const configureGoogleStrategy = (passport) => {
+  // Ensure GoogleStrategy is properly configured
   passport.use(
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/google/callback`,
+        callbackURL: `${process.env.BACKEND_URL || 'https://septexa.onrender.com'}/api/auth/google/callback`,
+        passReqToCallback: true,
       },
-      async (accessToken, refreshToken, profile, done) => {
+      async (req, accessToken, refreshToken, profile, done) => {
         try {
+          console.log('🔍 Google profile received:', profile.id, profile.emails?.[0]?.value);
+          
+          // Check if user exists with googleId
           let user = await User.findOne({ googleId: profile.id });
 
           if (!user) {
+            // Check if user exists with email
             const existingUser = await User.findOne({ email: profile.emails[0].value });
 
             if (existingUser) {
+              // Link Google account to existing user
               existingUser.googleId = profile.id;
               existingUser.avatar = profile.photos?.[0]?.value || existingUser.avatar;
               await existingUser.save();
               user = existingUser;
+              console.log('✅ Google account linked to existing user:', user.email);
             } else {
+              // Create new user
               user = await User.create({
                 googleId: profile.id,
                 name: profile.displayName || profile.name?.givenName || 'User',
                 email: profile.emails[0].value,
                 avatar: profile.photos?.[0]?.value || '',
                 password: null,
+                role: 'user',
+                status: 'active',
               });
+              console.log('✅ New user created via Google:', user.email);
             }
           }
 
@@ -44,7 +56,7 @@ export const configureGoogleStrategy = (passport) => {
 
           return done(null, user);
         } catch (error) {
-          console.error('Google strategy error:', error);
+          console.error('❌ Google strategy error:', error);
           return done(error, null);
         }
       }
@@ -97,6 +109,13 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    // Check if user has password (for Google OAuth users)
+    if (!user.password) {
+      return res.status(401).json({ 
+        message: 'This account uses Google Sign-In. Please login with Google.' 
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -137,30 +156,42 @@ router.get('/me', protect, async (req, res) => {
 // ===== GOOGLE OAUTH ROUTES =====
 
 // Initiate Google OAuth
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', 
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    prompt: 'select_account'
+  })
+);
 
 // Google OAuth Callback
 router.get(
   '/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login', session: false }),
+  passport.authenticate('google', { 
+    failureRedirect: '/login', 
+    session: false 
+  }),
   (req, res) => {
     try {
+      console.log('✅ Google OAuth callback received for user:', req.user?.email);
+      
       const token = generateToken(req.user);
       const user = req.user;
 
-      res.redirect(
-        `${process.env.FRONTEND_URL || 'http://localhost:5173'}/oauth-callback?token=${token}&user=${encodeURIComponent(
-          JSON.stringify({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            avatar: user.avatar,
-          })
-        )}`
-      );
+      // Redirect to frontend with token
+      const redirectUrl = `${process.env.FRONTEND_URL || 'https://septexa.vercel.app'}/oauth-callback?token=${token}&user=${encodeURIComponent(
+        JSON.stringify({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+        })
+      )}`;
+
+      console.log('🔄 Redirecting to:', redirectUrl);
+      res.redirect(redirectUrl);
     } catch (error) {
-      console.error('Google callback error:', error);
-      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/?error=google_auth_failed`);
+      console.error('❌ Google callback error:', error);
+      res.redirect(`${process.env.FRONTEND_URL || 'https://septexa.vercel.app'}/?error=google_auth_failed`);
     }
   }
 );
