@@ -428,7 +428,6 @@ const Dashboard = () => {
                 </svg>
               </button>
             )}
-            <img src="/septexa-logo.png" alt="Septexa" className="h-7 w-auto" />
           </div>
 
           {/* Mobile Profile - Right side */}
